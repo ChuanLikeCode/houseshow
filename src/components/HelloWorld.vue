@@ -7,18 +7,16 @@
       <!--<button type="button" id="close_websocket" @click = closeConnect>关闭 websocket</button>-->
     </div>
     <div>
-      <div id="areaBarChart" :style="{marginRight:'50px',width: '600px', height: '800px',float:'right'}"></div>
-      <div id="HistoricalTransactionRecordChart" :style="{marginTop:'50px',marginLeft:'50px',width: '600px', height: '800px'}"></div>
+      <div id="areaBarChart" :style="{marginRight:'25px',width: '600px', height: '800px',float:'right'}"></div>
+      <div id="HistoricalTransactionRecordChart" :style="{marginTop:'25px',marginLeft:'25px',width: '600px', height: '800px'}"></div>
     </div>
     <div>
       <div id="priceBarChart" :style="{margin:'50px',width: '600px', height: '800px'}"></div>
       <!--<div id="dataTimeBarChart" :style="{marginTop:'50px',marginLeft:'50px',width: '600px', height: '800px'}"></div>-->
     </div>
-    <!--// shanghai:[],dongguan:[],zhongshan:[],foshan:[],nanjin:[],xiamen:[],-->
-    <!--//   hefei:[],dalian:[],tianjin:[],guangzhou:[],langfang:[],huizhou:[],-->
-    <!--//   chengdu:[],hangzhou:[],wuhan:[],shengyang:[],jinan:[],haikou:[],-->
-    <!--//   shengzhen:[],yantai:[],shijiazhuang:[],suzhou:[],xian:[],chongqin:[],-->
-    <!--//   changsha:[],qingdao:[],beijin:[],-->
+    <div id="housedirectionCharts" :style="{width: '1300px', height: '600px',margin:'0px auto'}"></div>
+    <div id="beijindirectionCharts" :style="{width: '1300px', height: '600px',margin:'0px auto'}"></div>
+
     <div id="beijin" :style="{width: '1300px', height: '500px',margin:'0px auto'}"></div>
     <div id="shanghai" :style="{width: '1300px', height: '500px',margin:'0px auto'}"></div>
     <div id="dongguan" :style="{width: '1300px', height: '500px',margin:'0px auto'}"></div>
@@ -54,7 +52,8 @@
 </template>
 
 <script>
-
+  import { housedirection } from  '../assets/housedirection/Housedirection.js'
+  import { beijindirection } from  '../assets/housedirection/北京direction.js'
   import { beijin } from  '../assets/js/北京.js'
   import { shanghai } from  '../assets/js/上海.js'
   import { dongguan } from  '../assets/js/东莞.js'
@@ -166,7 +165,10 @@ export default {
      theArea:[{'name':'北京','value':beijin[11].mean},{'name':'上海','value':shanghai[11].mean},{'name':'东莞','value':dongguan[11].mean},{'name':'中山','value':zhongshan[11].mean},{'name':'佛山','value':foshan[11].mean},{'name':'南京','value':nanjin[11].mean},{'name':'厦门','value':xiamen[11].mean},{'name':'合肥','value':hefei[11].mean},{'name':'大连','value':dalian[11].mean},{'name':'天津','value':
         tianjin[11].mean},{'name':'广州','value':guangzhou[11].mean},{'name':'廊坊','value':langfang[11].mean},{'name':'惠州','value':huizhou[11].mean},{'name':'成都','value':chengdu[11].mean},{'name':'杭州','value':hangzhou[11].mean},{'name':'武汉','value':wuhan[11].mean},{'name':'沈阳','value':shengyang[11].mean},{'name':'济南','value':jinan[11].mean},{'name':'海口','value':haikou[11].mean},{'name':'深圳','value':
         shengzhen[11].mean},{'name':'烟台','value':yantai[11].mean},{'name':'石家庄','value':shijiazhuang[11].mean},{'name':'苏州','value':suzhou[11].mean},{'name':'西安','value':xian[11].mean},{'name':'重庆','value':chongqin[11].mean},{'name':'长沙','value':changsha[11].mean},{'name':'青岛','value':qingdao[11].mean}],
+      houseDirection:{
 
+      },
+      beijinDirection:{}
     }
   },
   mounted(){
@@ -194,11 +196,13 @@ export default {
   },
   methods:{
       loadsData() {
-        // this.areaBarChart=
-        // console.log(shanghai[12].mean)
+
       },
       drawArea(){
-        // 基于准备好的dom，初始化echarts实例HistoricalTransactionRecordChart
+        // 基于准备好的dom，初始化echarts实例
+        var houseDirectionCharts = this.$echarts.init(document.getElementById('housedirectionCharts'));
+        var beijinDirectionCharts = this.$echarts.init(document.getElementById('beijindirectionCharts'));
+
         var beijinChart = this.$echarts.init(document.getElementById('beijin'));
         var shanghaiChart = this.$echarts.init(document.getElementById('shanghai'));
         var dongguanChart = this.$echarts.init(document.getElementById('dongguan'));
@@ -230,9 +234,12 @@ export default {
         this.HistoricalTransactionRecordChart = this.$echarts.init(document.getElementById('HistoricalTransactionRecordChart'));
         this.priceBarChart = this.$echarts.init(document.getElementById('priceBarChart'));
         // this.dataTimeBarChart = this.$echarts.init(document.getElementById('dataTimeBarChart'));
-        this.setBarOption(this.areaBarChart,0,this.theSortArea,'各城市二手成交房屋建筑面积均值')
-        this.setBarOption(this.HistoricalTransactionRecordChart,1,this.theSortHisPrice,'各城市二手成交房屋价格均值')
-        this.setBarOption(this.priceBarChart,2,this.theSortPrice,'各城市二手成交房屋单价均值')
+        this.setBarOption(this.areaBarChart,0,this.theSortArea,'各城市二手成交房屋建筑面积均值');
+        this.setBarOption(this.HistoricalTransactionRecordChart,1,this.theSortHisPrice,'各城市二手成交房屋价格均值');
+        this.setBarOption(this.priceBarChart,2,this.theSortPrice,'各城市二手成交房屋单价均值');
+
+        this.setOptionDirection(houseDirectionCharts,housedirection,'各城市二手房房屋朝向成交走势图');
+        this.setOptionDirection(beijinDirectionCharts,beijindirection,'北京二手房房屋朝向成交走势图');
 
         this.setoptinManyLin(beijinChart,'北京二手房单价、成交额、建筑面积走势图',beijincount.单价,beijincount.历史成交记录,beijincount.建筑面积,beijincount.成交时间)
         this.setoptinManyLin(shanghaiChart,'上海二手房单价、成交额、建筑面积走势图',shanghaicount.单价,shanghaicount.历史成交记录,shanghaicount.建筑面积,shanghaicount.成交时间)
@@ -599,81 +606,426 @@ export default {
             }
           },
           data: area
-        }
-          // {
-          //   name: '一本',
-          //   type: 'line',
-          //   smooth: true,
-          //   symbol: 'circle',
-          //   symbolSize: 5,
-          //   showSymbol: false,
-          //   lineStyle: {
-          //     normal: {
-          //       width: 1
-          //     }
-          //   },
-          //   areaStyle: {
-          //     normal: {
-          //       color: new this.$echarts.graphic.LinearGradient(0, 0, 0, 1, [{
-          //         offset: 0,
-          //         color: 'rgba(249, 245, 0, 0.3)'
-          //       }, {
-          //         offset: 0.8,
-          //         color: 'rgba(249, 245, 0, 0)'
-          //       }], false),
-          //       shadowColor: 'rgba(0, 0, 0, 0.1)',
-          //       shadowBlur: 10
-          //     }
-          //   },
-          //   itemStyle: {
-          //     normal: {
-          //       color: 'rgb(249, 245, 0)',
-          //       borderColor: 'rgba(249, 245, 0,0.27)',
-          //       borderWidth: 12
-          //
-          //     }
-          //   },
-          //   data: this.dataNomal
-          // },
-          // {
-          //   name: '二本',
-          //   type: 'line',
-          //   smooth: true,
-          //   symbol: 'circle',
-          //   symbolSize: 5,
-          //   showSymbol: false,
-          //   lineStyle: {
-          //     normal: {
-          //       width: 1
-          //     }
-          //   },
-          //   areaStyle: {
-          //     normal: {
-          //       color: new this.$echarts.graphic.LinearGradient(0, 0, 0, 1, [{
-          //         offset: 0,
-          //         color: 'rgba(0,166, 174, 0.3)'
-          //       }, {
-          //         offset: 0.8,
-          //         color: 'rgba(0,166, 174, 0)'
-          //       }], false),
-          //       shadowColor: 'rgba(0, 0, 0, 0.1)',
-          //       shadowBlur: 10
-          //     }
-          //   },
-          //   itemStyle: {
-          //     normal: {
-          //       color: 'rgb(0,166, 174)',
-          //       borderColor: 'rgba(0,166, 174,0.27)',
-          //       borderWidth: 12
-          //
-          //     }
-          //   },
-          //   data: this.dataLowNomal
-          // }
-          ]
+        }]
       });
 
     },
+      setOptionDirection(drawChartId,direction,title){
+        var option = {
+          backgroundColor: '#394056',
+          title: {
+            text: title,
+            textStyle: {
+              fontWeight: 'normal',
+              fontSize: 16,
+              color: '#F1F1F3'
+            },
+            left: '6%'
+          },
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+              lineStyle: {
+                color: '#57617B'
+              }
+            }
+          },
+          legend: {
+            icon: 'rect',
+            itemWidth: 14,
+            itemHeight: 5,
+            itemGap: 13,
+            data: ['东','南','西','北','东南','东北','西南','西北','暂无数据'],
+            right: '4%',
+            textStyle: {
+              fontSize: 12,
+              color: '#F1F1F3'
+            }
+          },
+          grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+          },
+          dataZoom: [
+            {
+              show: true,
+              realtime: true,
+              start: 30,
+              end: 70
+            },
+            {
+              type: 'inside',
+              realtime: true,
+              start: 30,
+              end: 70
+            }
+          ],
+          xAxis: [{
+            type: 'category',
+            boundaryGap: false,
+            axisLine: {
+              lineStyle: {
+                color: '#57617B'
+              }
+            },
+            data: direction['date']
+          }, {
+            axisPointer: {
+              show: false
+            },
+            axisLine: {
+              lineStyle: {
+                color: '#57617B'
+              }
+            },
+            axisTick: {
+              show: false
+            },
+
+            position: 'bottom',
+            offset: 20,
+          }],
+          yAxis: [{
+            type: 'value',
+            name: '房子数量 /个',
+            axisTick: {
+              show: false
+            },
+            axisLine: {
+              lineStyle: {
+                color: '#57617B'
+              }
+            },
+            axisLabel: {
+              margin: 10,
+              textStyle: {
+                fontSize: 14
+              }
+            },
+            splitLine: {
+              lineStyle: {
+                color: '#57617B'
+              }
+            }
+          }],
+          series: [{
+            name: '东',
+            type: 'line',
+            smooth: true,
+            symbol: 'circle',
+            symbolSize: 5,
+            showSymbol: false,
+            lineStyle: {
+              normal: {
+                width: 1
+              }
+            },
+            areaStyle: {
+              normal: {
+                color: this.$echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                  offset: 0,
+                  color: 'rgba(255,210,0, 0.3)'
+                }, {
+                  offset: 0.8,
+                  color: 'rgba(255,210,0, 0)'
+                }], false),
+                shadowColor: 'rgba(0, 0, 0, 0.1)',
+                shadowBlur: 10
+              }
+            },
+            itemStyle: {
+              normal: {
+                color: 'rgb(255,210,0)',
+                borderColor: 'rgba(255,210,0,0.27)',
+                borderWidth: 12
+
+              }
+            },
+            data: direction['东']
+          }, {
+            name: '南',
+            type: 'line',
+            smooth: true,
+            symbol: 'circle',
+            symbolSize: 5,
+            showSymbol: false,
+            lineStyle: {
+              normal: {
+                width: 1
+              }
+            },
+            areaStyle: {
+              normal: {
+                color: this.$echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                  offset: 0,
+                  color: 'rgba(0,234,255, 0.3)'
+                }, {
+                  offset: 0.8,
+                  color: 'rgba(0,234,255, 0)'
+                }], false),
+                shadowColor: 'rgba(0, 0, 0, 0.1)',
+                shadowBlur: 10
+              }
+            },
+            itemStyle: {
+              normal: {
+                color: 'rgb(0,234,255)',
+                borderColor: 'rgba(0,234,255,0.2)',
+                borderWidth: 12
+
+              }
+            },
+            data: direction['南']
+          }, {
+            name: '西',
+            type: 'line',
+            smooth: true,
+            symbol: 'circle',
+            symbolSize: 5,
+            showSymbol: false,
+            lineStyle: {
+              normal: {
+                width: 1
+              }
+            },
+            areaStyle: {
+              normal: {
+                color:this.$echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                  offset: 0,
+                  color: 'rgba(8,102,229, 0.3)'
+                }, {
+                  offset: 0.8,
+                  color: 'rgba(8,102,229, 0)'
+                }], false),
+                shadowColor: 'rgba(0, 0, 0, 0.1)',
+                shadowBlur: 10
+              }
+            },
+            itemStyle: {
+              normal: {
+
+                color: 'rgb(8,102,229)',
+                borderColor: 'rgba(8,102,229,0.2)',
+                borderWidth: 12
+              }
+            },
+            data: direction['西']
+          },
+            {
+              name: '北',
+              type: 'line',
+              smooth: true,
+              symbol: 'circle',
+              symbolSize: 5,
+              showSymbol: false,
+              lineStyle: {
+                normal: {
+                  width: 1
+                }
+              },
+              areaStyle: {
+                normal: {
+                  color: this.$echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                    offset: 0,
+                    color: 'rgba(29,155,255, 0.3)'
+                  }, {
+                    offset: 0.8,
+                    color: 'rgba(29,155,255, 0)'
+                  }], false),
+                  shadowColor: 'rgba(0, 0, 0, 0.1)',
+                  shadowBlur: 10
+                }
+              },
+              itemStyle: {
+                normal: {
+
+                  color: 'rgb(29,155,255)',
+                  borderColor: 'rgba(29,155,255,0.2)',
+                  borderWidth: 12
+                }
+              },
+              data: direction['北']
+            },
+            {
+              name: '东南',
+              type: 'line',
+              smooth: true,
+              symbol: 'circle',
+              symbolSize: 5,
+              showSymbol: false,
+              lineStyle: {
+                normal: {
+                  width: 1
+                }
+              },
+              areaStyle: {
+                normal: {
+                  color:this.$echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                    offset: 0,
+                    color: 'rgba(41,199,41, 0.3)'
+                  }, {
+                    offset: 0.8,
+                    color: 'rgba(41,199,41, 0)'
+                  }], false),
+                  shadowColor: 'rgba(0, 0, 0, 0.1)',
+                  shadowBlur: 10
+                }
+              },
+              itemStyle: {
+                normal: {
+
+                  color: 'rgb(41,199,41)',
+                  borderColor: 'rgba(41,199,41,0.2)',
+                  borderWidth: 12
+                }
+              },
+              data: direction['东南']
+            },
+            {
+              name: '东北',
+              type: 'line',
+              smooth: true,
+              symbol: 'circle',
+              symbolSize: 5,
+              showSymbol: false,
+              lineStyle: {
+                normal: {
+                  width: 1
+                }
+              },
+              areaStyle: {
+                normal: {
+                  color: this.$echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                    offset: 0,
+                    color: 'rgba(255,132,0, 0.3)'
+                  }, {
+                    offset: 0.8,
+                    color: 'rgba(255,132,0, 0)'
+                  }], false),
+                  shadowColor: 'rgba(0, 0, 0, 0.1)',
+                  shadowBlur: 10
+                }
+              },
+              itemStyle: {
+                normal: {
+
+                  color: 'rgb(255,132,0)',
+                  borderColor: 'rgba(255,132,0,0.2)',
+                  borderWidth: 12
+                }
+              },
+              data: direction['东北']
+            },
+            {
+              name: '西南',
+              type: 'line',
+              smooth: true,
+              symbol: 'circle',
+              symbolSize: 5,
+              showSymbol: false,
+              lineStyle: {
+                normal: {
+                  width: 1
+                }
+              },
+              areaStyle: {
+                normal: {
+                  color: this.$echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                    offset: 0,
+                    color: 'rgba(228,57,60, 0.3)'
+                  }, {
+                    offset: 0.8,
+                    color: 'rgba(228,57,60, 0)'
+                  }], false),
+                  shadowColor: 'rgba(0, 0, 0, 0.1)',
+                  shadowBlur: 10
+                }
+              },
+              itemStyle: {
+                normal: {
+
+                  color: 'rgb(228,57,60)',
+                  borderColor: 'rgba(228,57,60,0.2)',
+                  borderWidth: 12
+                }
+              },
+              data: direction['西南']
+            },
+            {
+              name: '西北',
+              type: 'line',
+              smooth: true,
+              symbol: 'circle',
+              symbolSize: 5,
+              showSymbol: false,
+              lineStyle: {
+                normal: {
+                  width: 1
+                }
+              },
+              areaStyle: {
+                normal: {
+                  color: this.$echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                    offset: 0,
+                    color: 'rgba(255,107,0, 0.3)'
+                  }, {
+                    offset: 0.8,
+                    color: 'rgba(255,107,0, 0)'
+                  }], false),
+                  shadowColor: 'rgba(0, 0, 0, 0.1)',
+                  shadowBlur: 10
+                }
+              },
+              itemStyle: {
+                normal: {
+
+                  color: 'rgb(255,107,0)',
+                  borderColor: 'rgba(255,107,0,0.2)',
+                  borderWidth: 12
+                }
+              },
+              data: direction['西北']
+            },
+            {
+              name: '暂无数据',
+              type: 'line',
+              smooth: true,
+              symbol: 'circle',
+              symbolSize: 5,
+              showSymbol: false,
+              lineStyle: {
+                normal: {
+                  width: 1
+                }
+              },
+              areaStyle: {
+                normal: {
+                  color:this.$echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                    offset: 0,
+                    color: 'rgba(19,181,177, 0.3)'
+                  }, {
+                    offset: 0.8,
+                    color: 'rgba(19,181,177, 0)'
+                  }], false),
+                  shadowColor: 'rgba(0, 0, 0, 0.1)',
+                  shadowBlur: 10
+                }
+              },
+              itemStyle: {
+                normal: {
+
+                  color: 'rgb(19,181,177)',
+                  borderColor: 'rgba(19,181,177,0.2)',
+                  borderWidth: 12
+                }
+              },
+              data: direction['暂无数据']
+            }]
+        };
+        drawChartId.setOption(option);
+      }
   }
 }
 </script>
